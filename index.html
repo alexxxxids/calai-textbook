@@ -1263,35 +1263,41 @@ details[open] > summary.callout__head::after {
 
 .ask-fab {
   position: fixed;
-  right: 18px;
-  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   z-index: 30;
   font-family: var(--font-hand);
   font-weight: 700;
   font-size: 22px;
   line-height: 1;
-  padding: 12px 18px;
+  padding: 12px 20px;
   border-radius: 999px;
   border: 2px solid var(--red);
   background: var(--surface);
   color: var(--red);
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ask-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
 }
 
 .ask {
   position: fixed;
-  right: 18px;
-  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   z-index: 40;
-  width: min(460px, calc(100vw - 36px));
-  height: min(640px, calc(100dvh - 36px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+  width: min(480px, calc(100vw - 32px));
+  height: min(680px, calc(100dvh - 36px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
   display: flex;
   flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--rule-strong);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  border-radius: 16px;
+  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
@@ -1300,14 +1306,15 @@ details[open] > summary.callout__head::after {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 12px 10px 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--rule);
+  background: var(--surface);
 }
 
 .ask__head-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .ask__head h2 {
@@ -1319,13 +1326,37 @@ details[open] > summary.callout__head::after {
 }
 
 .ask__model-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   font-family: var(--font-mono);
+  font-weight: 600;
   color: var(--blue);
   background: var(--blue-soft);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
   width: fit-content;
+}
+
+.ask__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+  box-shadow: 0 0 6px #10b981;
+  animation: askPulse 2s infinite ease-in-out;
+}
+
+.ask__status-dot--warn {
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+@keyframes askPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
 }
 
 .ask__head-actions {
@@ -1355,9 +1386,9 @@ details[open] > summary.callout__head::after {
   flex: 1;
   font-family: var(--font-mono);
   font-size: 13px;
-  padding: 6px 10px;
+  padding: 7px 10px;
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--paper);
   color: var(--ink);
 }
@@ -1369,74 +1400,65 @@ details[open] > summary.callout__head::after {
   line-height: 1.4;
 }
 
-.ask__model-picker {
-  display: grid;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.ask__model-picker select {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--rule-strong);
-  background: var(--paper);
-  color: var(--ink);
-}
-
-.ask__thought {
-  margin-bottom: 10px;
-  border: 1px dashed var(--rule-strong);
-  border-radius: 8px;
-  background: var(--paper);
-  font-size: 13px;
-  color: var(--ink-2);
-}
-
-.ask__thought summary {
-  padding: 6px 10px;
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--violet);
-  user-select: none;
-}
-
-.ask__thought-body {
-  padding: 8px 12px;
-  border-top: 1px dashed var(--rule);
-  white-space: pre-wrap;
-  line-height: 1.45;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
 .ask__modes {
   display: flex;
   gap: 6px;
-  padding: 10px 12px 0;
+  padding: 10px 14px 6px;
 }
 
 .ask__mode {
   font: inherit;
-  font-size: 14px;
-  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 12px;
   border-radius: 999px;
   border: 1px solid var(--rule);
   background: transparent;
   color: var(--ink-2);
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ask__mode:hover {
+  background: var(--surface-2);
 }
 
 .ask__mode.is-active {
   background: var(--blue-soft);
   border-color: var(--blue);
   color: var(--ink);
+  font-weight: 600;
+}
+
+.ask__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 14px;
+}
+
+.ask__chip {
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ask__chip:hover {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+  color: var(--blue);
+  transform: translateY(-1px);
 }
 
 .ask__hint {
-  margin: 8px 16px 0;
-  font-size: 13px;
+  margin: 4px 16px 0;
+  font-size: 12.5px;
   line-height: 1.45;
   color: var(--ink-3);
 }
@@ -1448,13 +1470,13 @@ details[open] > summary.callout__head::after {
   display: grid;
   align-content: start;
   gap: 12px;
-  font-size: 15px;
+  font-size: 14.5px;
   line-height: 1.55;
 }
 
 .ask__msg {
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
   overflow-wrap: anywhere;
 }
 
@@ -1463,10 +1485,13 @@ details[open] > summary.callout__head::after {
   justify-self: end;
   max-width: 88%;
   white-space: pre-wrap;
+  border-bottom-right-radius: 4px;
 }
 
 .ask__msg--assistant {
   background: var(--surface-2);
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--rule);
 }
 
 .ask__msg--assistant > :first-child {
@@ -1482,8 +1507,9 @@ details[open] > summary.callout__head::after {
   font-family: var(--font-mono);
   font-size: 13px;
   background: var(--code-bg);
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 8px;
+  position: relative;
 }
 
 .ask__msg code {
@@ -1491,32 +1517,115 @@ details[open] > summary.callout__head::after {
   font-size: 0.88em;
 }
 
+.ask__copy-code {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  color: var(--ink-2);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: all 0.15s ease;
+}
+
+.ask__copy-code:hover {
+  opacity: 1;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ask__copy-code.is-copied {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
 .ask__msg--note {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--ink-3);
   background: transparent;
   padding: 0;
 }
 
+.ask__thought {
+  margin-bottom: 12px;
+  border: 1px solid var(--rule);
+  border-left: 3px solid #8b5cf6;
+  border-radius: 8px;
+  background: var(--paper);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  overflow: hidden;
+}
+
+.ask__thought summary {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #8b5cf6;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ask__thought-body {
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  max-height: 220px;
+  overflow-y: auto;
+  color: var(--ink-3);
+}
+
+.ask__thinking-pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-style: italic;
+  color: var(--blue);
+  animation: askPulse 1.8s infinite ease-in-out;
+}
+
 .ask__form {
   display: grid;
   gap: 8px;
-  padding: 12px;
+  padding: 12px 14px;
   border-top: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.ask__input-wrap {
+  position: relative;
 }
 
 .ask__form textarea {
   width: 100%;
   font: inherit;
-  font-size: 15px;
+  font-size: 14.5px;
   line-height: 1.45;
-  resize: vertical;
-  min-height: 64px;
+  resize: none;
+  min-height: 44px;
+  max-height: 140px;
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--rule-strong);
   background: var(--paper);
   color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+
+.ask__form textarea:focus {
+  outline: none;
+  border-color: var(--blue);
 }
 
 .ask__row {
@@ -1529,13 +1638,39 @@ details[open] > summary.callout__head::after {
 
 .ask__attach {
   margin-right: auto;
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--ink-2);
+  cursor: pointer;
 }
 
 .ask__attach input {
-  max-width: 180px;
+  display: none;
+}
+
+.ask__file-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
+  padding: 2px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--ink-2);
+  margin-right: auto;
+}
+
+.ask__file-remove {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--ink-3);
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.ask__file-remove:hover {
+  color: var(--red);
 }
 
 /* ------------------------------------------------------------ glossary */
@@ -1695,7 +1830,7 @@ details[open] > summary.callout__head::after {
   <header class="ask__head">
     <div class="ask__head-info">
       <h2 id="ask-title">Спросить Митрича</h2>
-      <div class="ask__model-badge" id="ask-model-badge" title="Модель Gemini">⚡ Gemini Discovery</div>
+      <div class="ask__model-badge" id="ask-model-badge" title="Модель: Gemini Flash (HIGH Reasoning)">⚡ Gemini Flash · HIGH Reasoning</div>
     </div>
     <div class="ask__head-actions">
       <button class="icon-button" id="ask-settings-btn" type="button" aria-label="Настройки API ключа" title="Настройки API ключа">⚙️</button>
@@ -1710,23 +1845,23 @@ details[open] > summary.callout__head::after {
         <button class="button button--primary" type="button" id="ask-key-save">Сохранить</button>
       </div>
       <p class="ask__key-hint">Ключ хранится только в вашем браузере (localStorage) и отправляется напрямую в Google API.</p>
-      <div class="ask__model-picker" id="ask-model-picker" hidden>
-        <label for="ask-model-select"><strong>Доступные модели (Discovery):</strong></label>
-        <select id="ask-model-select"></select>
-      </div>
     </div>
   </div>
   <div class="ask__modes" role="tablist">
     <button class="ask__mode is-active" type="button" role="tab" aria-selected="true" data-mode="ask" id="ask-mode-ask">Вопрос по главе</button>
     <button class="ask__mode" type="button" role="tab" aria-selected="false" data-mode="exam" id="ask-mode-exam">Экзамен у учителя</button>
   </div>
+  <div class="ask__chips" id="ask-chips"></div>
   <p class="ask__hint" id="ask-hint"></p>
   <div class="ask__log" id="ask-log" aria-live="polite"></div>
   <form class="ask__form" id="ask-form">
-    <label class="visually-hidden" for="ask-input">Сообщение</label>
-    <textarea id="ask-input" rows="3" maxlength="4000" placeholder="Что непонятно в этой главе?"></textarea>
+    <div class="ask__input-wrap">
+      <label class="visually-hidden" for="ask-input">Сообщение</label>
+      <textarea id="ask-input" rows="2" maxlength="4000" placeholder="Что непонятно в этой главе? (Enter — отправить, Shift+Enter — перенос)"></textarea>
+    </div>
     <div class="ask__row">
-      <label class="ask__attach" id="ask-attach-label"><input type="file" id="ask-attach" accept="image/png,image/jpeg,image/webp"> Скрин ошибки</label>
+      <label class="ask__attach" id="ask-attach-label"><input type="file" id="ask-attach" accept="image/png,image/jpeg,image/webp"> 📎 Скриншот</label>
+      <span class="ask__file-badge" id="ask-file-badge" hidden></span>
       <button class="button" type="button" id="ask-stop" hidden>Стоп</button>
       <button class="button button--primary" type="submit" id="ask-send">Отправить</button>
     </div>
@@ -21654,8 +21789,8 @@ const el = {
   askKeyInput: document.getElementById('ask-key-input'),
   askKeySave: document.getElementById('ask-key-save'),
   askModelBadge: document.getElementById('ask-model-badge'),
-  askModelPicker: document.getElementById('ask-model-picker'),
-  askModelSelect: document.getElementById('ask-model-select'),
+  askChips: document.getElementById('ask-chips'),
+  askFileBadge: document.getElementById('ask-file-badge'),
 };
 
 const homeHtml = el.reader.innerHTML;
@@ -22176,28 +22311,10 @@ const TEACHER_RULES = `Ты — учитель информатики в пол�
 3. Будь строгим, но доброжелательным. Технические детали — только достоверные.`;
 
 const STORAGE_KEY = 'calai_gemini_key';
-const STORAGE_MODEL = 'calai_gemini_model';
-
-const CONVERSATIONAL_MODEL_REGEX =
-  /^gemini-(?:(?:flash(?:-lite)?|pro)-latest|(?:\d+(?:\.\d+)?-(?:flash|pro)(?:-lite)?(?:-preview)?))$/;
-
-function getSanitizedStoredModel() {
-  try {
-    const stored = localStorage.getItem(STORAGE_MODEL);
-    if (stored && CONVERSATIONAL_MODEL_REGEX.test(stored)) {
-      return stored;
-    }
-    if (stored) {
-      localStorage.removeItem(STORAGE_MODEL);
-    }
-  } catch {}
-  return '';
-}
+const GEMINI_MODEL = 'gemini-flash-latest';
 
 const askState = {
   apiKey: localStorage.getItem(STORAGE_KEY) || '',
-  model: getSanitizedStoredModel(),
-  models: [],
   mode: 'ask',
   turns: [],
   controller: null,
@@ -22232,6 +22349,28 @@ async function renderAnswer(target, text, prefixHtml = '') {
   try {
     const marked = await loadMarked();
     target.innerHTML = prefixHtml + marked.parse(text);
+    // Wire copy buttons on code blocks
+    for (const pre of target.querySelectorAll('pre')) {
+      if (pre.querySelector('.ask__copy-code')) continue;
+      const btn = document.createElement('button');
+      btn.className = 'ask__copy-code';
+      btn.type = 'button';
+      btn.textContent = '📋 Копировать';
+      btn.addEventListener('click', async () => {
+        const code = pre.querySelector('code')?.innerText || pre.innerText;
+        try {
+          await navigator.clipboard.writeText(code);
+          btn.textContent = '✓ Скопировано';
+          btn.classList.add('is-copied');
+          setTimeout(() => {
+            btn.textContent = '📋 Копировать';
+            btn.classList.remove('is-copied');
+          }, 2000);
+        } catch {}
+      });
+      pre.style.position = 'relative';
+      pre.appendChild(btn);
+    }
   } catch {
     target.innerHTML = prefixHtml;
     const p = document.createElement('p');
@@ -22291,82 +22430,26 @@ function setBusy(busy) {
 function updateModelBadge() {
   if (!el.askModelBadge) return;
   if (!askState.apiKey) {
-    el.askModelBadge.textContent = '🔑 Нужен API Key';
+    el.askModelBadge.innerHTML = '<span class="ask__status-dot ask__status-dot--warn"></span> 🔑 Нужен API Key';
     el.askModelBadge.style.color = 'var(--red)';
     el.askModelBadge.style.background = 'var(--red-soft)';
     return;
   }
-  const modelName = askState.model || 'поиск...';
-  const isGemini3 = modelName.includes('3.') || modelName.includes('gemini-3') || modelName.includes('latest');
-  const levelText = isGemini3 ? 'HIGH' : 'Dynamic';
-  el.askModelBadge.textContent = `⚡ ${modelName} (${levelText})`;
+  el.askModelBadge.innerHTML = '<span class="ask__status-dot"></span> ⚡ Gemini Flash · HIGH Reasoning';
   el.askModelBadge.style.color = 'var(--blue)';
   el.askModelBadge.style.background = 'var(--blue-soft)';
 }
 
-async function discoverGeminiModels(key) {
-  if (!key) return [];
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
-    if (!res.ok) {
-      throw new Error(`Google API status ${res.status}`);
+async function verifyGeminiKey(key) {
+  if (!key) throw new Error('Укажите API ключ Google Gemini');
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}?key=${key}`);
+  if (!res.ok) {
+    if (res.status === 400 || res.status === 403 || res.status === 401) {
+      throw new Error('Ключ недействителен или не имеет доступа к Gemini API (403/401)');
     }
-    const data = await res.json();
-    const raw = data.models || [];
-    const models = raw
-      .filter((m) => {
-        const id = m.name.replace(/^models\//, '');
-        const hasGenerate = (m.supportedGenerationMethods || []).includes('generateContent');
-        return hasGenerate && CONVERSATIONAL_MODEL_REGEX.test(id);
-      })
-      .map((m) => m.name.replace(/^models\//, ''));
-
-    // Приоритеты: flash-lite (+1000) > flash (+500) > pro (+200)
-    // Версии: latest > 3.8 > 3.7 > 3.6 > 3.5 > 3.1 > 3.0 > 2.5
-    const score = (name) => {
-      let s = 0;
-      const isFlashLite = name.includes('flash-lite');
-      const isFlash = name.includes('flash') && !isFlashLite;
-      const isPro = name.includes('pro');
-
-      if (isFlashLite) s += 1000;
-      else if (isFlash) s += 500;
-      else if (isPro) s += 200;
-
-      if (name.includes('latest')) s += 850;
-      else if (name.includes('3.8')) s += 800;
-      else if (name.includes('3.7')) s += 750;
-      else if (name.includes('3.6')) s += 720;
-      else if (name.includes('3.5')) s += 700;
-      else if (name.includes('3.1')) s += 600;
-      else if (name.includes('3.0') || name.includes('gemini-3')) s += 500;
-      else if (name.includes('2.5')) s += 400;
-      else if (name.includes('2.0')) s += 300;
-      else if (name.includes('1.5')) s += 200;
-
-      if (!name.includes('-preview')) s += 50;
-      return s;
-    };
-
-    models.sort((a, b) => score(b) - score(a));
-    return models;
-  } catch (err) {
-    console.warn('[Discovery error]', err);
-    return [];
+    throw new Error(`Ошибка проверки ключа (${res.status})`);
   }
-}
-
-function populateModelSelect(models) {
-  if (!el.askModelSelect || !el.askModelPicker) return;
-  el.askModelSelect.replaceChildren();
-  for (const m of models) {
-    const opt = document.createElement('option');
-    opt.value = m;
-    opt.textContent = m;
-    if (m === askState.model) opt.selected = true;
-    el.askModelSelect.appendChild(opt);
-  }
-  el.askModelPicker.hidden = models.length === 0;
+  return true;
 }
 
 function fileToBase64(file) {
@@ -22383,10 +22466,6 @@ function fileToBase64(file) {
 }
 
 async function callGemini(userText, file) {
-  const model = askState.model || 'gemini-flash-lite-latest';
-  const isGemini3 = model.includes('3.') || model.includes('gemini-3') || model.includes('latest');
-  const isGemini25 = model.includes('2.5');
-
   const rules = askState.mode === 'exam' ? TEACHER_RULES : MITRICH_RULES;
   const systemInstruction = {
     parts: [{ text: `${rules}\n\n${chapterContext()}` }],
@@ -22400,16 +22479,10 @@ async function callGemini(userText, file) {
   const buildPayload = (includeThinking) => {
     const generationConfig = {};
     if (includeThinking) {
-      if (isGemini3) {
-        generationConfig.thinkingConfig = {
-          thinkingLevel: 'HIGH',
-          includeThoughts: true,
-        };
-      } else if (isGemini25) {
-        generationConfig.thinkingConfig = {
-          thinkingBudget: -1,
-        };
-      }
+      generationConfig.thinkingConfig = {
+        thinkingLevel: 'HIGH',
+        includeThoughts: true,
+      };
     }
 
     const contents = [];
@@ -22435,7 +22508,7 @@ async function callGemini(userText, file) {
     return { contents, systemInstruction, generationConfig };
   };
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${askState.apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${askState.apiKey}`;
 
   let res = await fetch(url, {
     method: 'POST',
@@ -22448,7 +22521,7 @@ async function callGemini(userText, file) {
     const errJson = await res.json().catch(() => ({}));
     let errMsg = errJson?.error?.message || `Ошибка Google API (${res.status})`;
 
-    // Self-healing fallback: если 400 связано с thinkingConfig, повторяем без thinking
+    // Fallback: если 400 связано с thinkingConfig, повторяем без него
     if (res.status === 400 && /thinking/i.test(errMsg)) {
       console.warn('[Gemini Fallback] Ошибка thinkingConfig, повтор без него:', errMsg);
       res = await fetch(url, {
@@ -22506,13 +22579,52 @@ async function callGemini(userText, file) {
   return { thoughtText, answerText: answerText || '...' };
 }
 
+function setAskMode(mode) {
+  askState.mode = mode;
+  for (const tab of el.ask.querySelectorAll('.ask__mode')) {
+    const active = tab.dataset.mode === mode;
+    tab.classList.toggle('is-active', active);
+    tab.setAttribute('aria-selected', String(active));
+  }
+}
+
+function updateQuickChips() {
+  if (!el.askChips) return;
+  el.askChips.replaceChildren();
+  if (!currentChapter) return;
+  const meta = byId.get(currentChapter);
+  if (!meta) return;
+
+  const chips = [
+    { label: '💡 В чём суть главы?', prompt: `В чём главная суть главы ${meta.id} «${meta.title}»? Объясни простыми словами в 3 тезисах.` },
+    { label: '🔍 Где здесь грабли?', prompt: `Какие неочевидные подводные камни и частые ошибки студентов в теме главы ${meta.id}?` },
+    { label: '🎯 Экзамен по теме', mode: 'exam', prompt: 'Zadaj mi pierwsze pytanie.' },
+  ];
+
+  for (const c of chips) {
+    const btn = document.createElement('button');
+    btn.className = 'ask__chip';
+    btn.type = 'button';
+    btn.textContent = c.label;
+    btn.addEventListener('click', () => {
+      if (c.mode) {
+        setAskMode(c.mode);
+      }
+      el.askInput.value = c.prompt;
+      el.askForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    });
+    el.askChips.appendChild(btn);
+  }
+}
+
 function resetConversation() {
   askState.controller?.abort();
   askState.turns = [];
   el.askLog.replaceChildren();
+  updateQuickChips();
   const chapter = currentChapter ? `главе ${currentChapter}` : 'учебнику';
   if (!askState.apiKey) {
-    el.askHint.textContent = `🔑 Введите ваш Gemini API Key в панели настроек ⚙️ выше для начала диалога.`;
+    el.askHint.textContent = '🔑 Введите ваш Gemini API Key в панели настроек ⚙️ выше для начала диалога.';
     return;
   }
   if (askState.mode === 'exam') {
@@ -22520,7 +22632,7 @@ function resetConversation() {
     el.askInput.placeholder = 'Твой ответ учителю (можно по-польски)…';
   } else {
     el.askHint.textContent = `Митрич видит текст открытой главы и отвечает по ${chapter}. Задавай любые вопросы!`;
-    el.askInput.placeholder = 'Что непонятно в этой главе?';
+    el.askInput.placeholder = 'Что непонятно в этой главе? (Enter — отправить, Shift+Enter — перенос)';
   }
 }
 
@@ -22545,10 +22657,15 @@ async function sendAsk(event) {
   const file = el.askAttach.files?.[0] ?? null;
   addMessage('user', file ? `${text}\n📎 ${file.name}` : text);
   el.askInput.value = '';
+  el.askInput.style.height = 'auto';
   el.askAttach.value = '';
+  if (el.askFileBadge) {
+    el.askFileBadge.hidden = true;
+    el.askFileBadge.replaceChildren();
+  }
 
   const answer = addMessage('assistant', '');
-  answer.textContent = 'Митрич думает (Reasoning: HIGH)…';
+  answer.innerHTML = '<span class="ask__thinking-pulse">⚡ Митрич думает (HIGH Reasoning)…</span>';
   askState.controller = new AbortController();
   setBusy(true);
 
@@ -22604,15 +22721,6 @@ async function wireAsk() {
 
   if (askState.apiKey && el.askKeyInput) {
     el.askKeyInput.value = askState.apiKey;
-    void discoverGeminiModels(askState.apiKey).then((models) => {
-      askState.models = models;
-      populateModelSelect(models);
-      if ((!askState.model || !models.includes(askState.model)) && models.length > 0) {
-        askState.model = models[0];
-        localStorage.setItem(STORAGE_MODEL, askState.model);
-        updateModelBadge();
-      }
-    });
   }
 
   el.askFab.addEventListener('click', openAsk);
@@ -22638,25 +22746,17 @@ async function wireAsk() {
         return;
       }
       el.askKeySave.disabled = true;
-      el.askKeySave.textContent = 'Discovery...';
+      el.askKeySave.textContent = 'Проверка...';
       try {
-        const models = await discoverGeminiModels(key);
-        if (!models.length) {
-          alert('Не удалось получить список моделей с этим ключом. Проверьте правильность ключа.');
-          return;
-        }
+        await verifyGeminiKey(key);
         askState.apiKey = key;
         localStorage.setItem(STORAGE_KEY, key);
-        askState.models = models;
-        populateModelSelect(models);
-        askState.model = models[0];
-        localStorage.setItem(STORAGE_MODEL, askState.model);
         updateModelBadge();
         el.askSettings.hidden = true;
         resetConversation();
-        addMessage('note', `✅ Подключено! Модель: ${askState.model} с максимальным рассуждением (HIGH).`);
+        addMessage('note', '✅ Ключ успешно проверен и подключен! Чат работает на Gemini Flash с максимальным рассуждением (HIGH).');
       } catch (err) {
-        alert('Ошибка Discovery: ' + err.message);
+        alert('Ошибка проверки ключа: ' + err.message);
       } finally {
         el.askKeySave.disabled = false;
         el.askKeySave.textContent = 'Сохранить';
@@ -22664,12 +22764,37 @@ async function wireAsk() {
     });
   }
 
-  if (el.askModelSelect) {
-    el.askModelSelect.addEventListener('change', () => {
-      askState.model = el.askModelSelect.value;
-      localStorage.setItem(STORAGE_MODEL, askState.model);
-      updateModelBadge();
-      addMessage('note', `Переключено на модель: ${askState.model}`);
+  // Input ergonomics: Enter to send, auto-resize
+  if (el.askInput) {
+    el.askInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        el.askForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+    });
+    el.askInput.addEventListener('input', () => {
+      el.askInput.style.height = 'auto';
+      const newHeight = Math.min(Math.max(el.askInput.scrollHeight, 44), 140);
+      el.askInput.style.height = `${newHeight}px`;
+    });
+  }
+
+  // File attachment badge with remove button
+  if (el.askAttach && el.askFileBadge) {
+    el.askAttach.addEventListener('change', () => {
+      const file = el.askAttach.files?.[0];
+      if (file) {
+        el.askFileBadge.hidden = false;
+        el.askFileBadge.innerHTML = `<span>📎 ${escapeHtml(file.name)}</span> <button type="button" class="ask__file-remove" title="Удалить">✕</button>`;
+        el.askFileBadge.querySelector('.ask__file-remove')?.addEventListener('click', () => {
+          el.askAttach.value = '';
+          el.askFileBadge.hidden = true;
+          el.askFileBadge.replaceChildren();
+        });
+      } else {
+        el.askFileBadge.hidden = true;
+        el.askFileBadge.replaceChildren();
+      }
     });
   }
 
@@ -22679,12 +22804,7 @@ async function wireAsk() {
 
   for (const tab of el.ask.querySelectorAll('.ask__mode')) {
     tab.addEventListener('click', () => {
-      askState.mode = tab.dataset.mode;
-      for (const other of el.ask.querySelectorAll('.ask__mode')) {
-        const active = other === tab;
-        other.classList.toggle('is-active', active);
-        other.setAttribute('aria-selected', String(active));
-      }
+      setAskMode(tab.dataset.mode);
       resetConversation();
     });
   }
@@ -22694,6 +22814,7 @@ async function wireAsk() {
       addMessage('note', 'Ты открыл другую главу. Следующий вопрос начнёт новый разговор по ней.');
       askState.turns = [];
     }
+    updateQuickChips();
   });
 }
 
