@@ -1304,11 +1304,111 @@ details[open] > summary.callout__head::after {
   border-bottom: 1px solid var(--rule);
 }
 
+.ask__head-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .ask__head h2 {
   margin: 0;
   font-family: var(--font-hand);
-  font-size: 28px;
+  font-size: 26px;
+  line-height: 1.1;
   color: var(--red);
+}
+
+.ask__model-badge {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--blue);
+  background: var(--blue-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.ask__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ask__settings {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--rule);
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.ask__settings-body {
+  display: grid;
+  gap: 8px;
+}
+
+.ask__key-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ask__key-row input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ask__key-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.4;
+}
+
+.ask__model-picker {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.ask__model-picker select {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ask__thought {
+  margin-bottom: 10px;
+  border: 1px dashed var(--rule-strong);
+  border-radius: 8px;
+  background: var(--paper);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.ask__thought summary {
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--violet);
+  user-select: none;
+}
+
+.ask__thought-body {
+  padding: 8px 12px;
+  border-top: 1px dashed var(--rule);
+  white-space: pre-wrap;
+  line-height: 1.45;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .ask__modes {
@@ -1590,12 +1690,32 @@ details[open] > summary.callout__head::after {
   </main>
   <aside class="pagetoc" id="pagetoc" aria-label="На этой странице"></aside>
 </div>
-<button class="ask-fab" id="ask-fab" type="button" hidden>Спросить Митрича</button>
+<button class="ask-fab" id="ask-fab" type="button">Спросить Митрича</button>
 <section class="ask" id="ask" hidden aria-labelledby="ask-title">
   <header class="ask__head">
-    <h2 id="ask-title">Спросить Митрича</h2>
-    <button class="icon-button" id="ask-close" type="button" aria-label="Закрыть">✕</button>
+    <div class="ask__head-info">
+      <h2 id="ask-title">Спросить Митрича</h2>
+      <div class="ask__model-badge" id="ask-model-badge" title="Модель Gemini">⚡ Gemini Discovery</div>
+    </div>
+    <div class="ask__head-actions">
+      <button class="icon-button" id="ask-settings-btn" type="button" aria-label="Настройки API ключа" title="Настройки API ключа">⚙️</button>
+      <button class="icon-button" id="ask-close" type="button" aria-label="Закрыть">✕</button>
+    </div>
   </header>
+  <div class="ask__settings" id="ask-settings" hidden>
+    <div class="ask__settings-body">
+      <label for="ask-key-input"><strong>Gemini API Key</strong> (<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">получить бесплатно в Google AI Studio</a>):</label>
+      <div class="ask__key-row">
+        <input type="password" id="ask-key-input" placeholder="AIzaSy..." autocomplete="off">
+        <button class="button button--primary" type="button" id="ask-key-save">Сохранить</button>
+      </div>
+      <p class="ask__key-hint">Ключ хранится только в вашем браузере (localStorage) и отправляется напрямую в Google API.</p>
+      <div class="ask__model-picker" id="ask-model-picker" hidden>
+        <label for="ask-model-select"><strong>Доступные модели (Discovery):</strong></label>
+        <select id="ask-model-select"></select>
+      </div>
+    </div>
+  </div>
   <div class="ask__modes" role="tablist">
     <button class="ask__mode is-active" type="button" role="tab" aria-selected="true" data-mode="ask" id="ask-mode-ask">Вопрос по главе</button>
     <button class="ask__mode" type="button" role="tab" aria-selected="false" data-mode="exam" id="ask-mode-exam">Экзамен у учителя</button>
@@ -1606,7 +1726,7 @@ details[open] > summary.callout__head::after {
     <label class="visually-hidden" for="ask-input">Сообщение</label>
     <textarea id="ask-input" rows="3" maxlength="4000" placeholder="Что непонятно в этой главе?"></textarea>
     <div class="ask__row">
-      <label class="ask__attach" id="ask-attach-label" hidden><input type="file" id="ask-attach" accept="image/png,image/jpeg,image/webp"> Скрин ошибки</label>
+      <label class="ask__attach" id="ask-attach-label"><input type="file" id="ask-attach" accept="image/png,image/jpeg,image/webp"> Скрин ошибки</label>
       <button class="button" type="button" id="ask-stop" hidden>Стоп</button>
       <button class="button button--primary" type="submit" id="ask-send">Отправить</button>
     </div>
@@ -21529,6 +21649,13 @@ const el = {
   askHint: document.getElementById('ask-hint'),
   askAttach: document.getElementById('ask-attach'),
   askAttachLabel: document.getElementById('ask-attach-label'),
+  askSettings: document.getElementById('ask-settings'),
+  askSettingsBtn: document.getElementById('ask-settings-btn'),
+  askKeyInput: document.getElementById('ask-key-input'),
+  askKeySave: document.getElementById('ask-key-save'),
+  askModelBadge: document.getElementById('ask-model-badge'),
+  askModelPicker: document.getElementById('ask-model-picker'),
+  askModelSelect: document.getElementById('ask-model-select'),
 };
 
 const homeHtml = el.reader.innerHTML;
@@ -22031,7 +22158,7 @@ function wireCommentButton(button, header) {
   });
 }
 
-// ------------------------------------------------------------ «Спросить Митрича»
+// ------------------------------------------------------------ «Спросить Митрича» (Gemini API + Dynamic Discovery)
 
 const MITRICH_RULES = `Ты — Митрич, наставник из «Учебника CalAI»: отставной сеньор-разработчик, остроумный и точный. Твои ученики — два 18-летних новичка из Польши; они пишут школьный проект CalAI (Next.js 16, React 19, TypeScript 6, Supabase, Gemini API, FullCalendar 7, Vercel) и должны уметь объяснить его учителю по-польски.
 Правила ответа:
@@ -22048,31 +22175,18 @@ const TEACHER_RULES = `Ты — учитель информатики в пол�
 2. Когда ученик отвечает (по-польски или по-русски) — оцени: что верно, что упущено, что неверно; если ответ был по-польски — поправь ошибки языка; дай образцовый ответ по-польски (3–5 предложений) и его смысл по-русски. В конце предложи задать следующий вопрос.
 3. Будь строгим, но доброжелательным. Технические детали — только достоверные.`;
 
+const STORAGE_KEY = 'calai_gemini_key';
+const STORAGE_MODEL = 'calai_gemini_model';
+
 const askState = {
-  sample: null,
+  apiKey: localStorage.getItem(STORAGE_KEY) || '',
+  model: localStorage.getItem(STORAGE_MODEL) || '',
+  models: [],
   mode: 'ask',
   turns: [],
   controller: null,
   markedPromise: null,
 };
-
-const ERROR_TEXT = {
-  rate_limited: 'Слишком много вопросов подряд или закончился лимит Claude. Передохни и спроси позже.',
-  session_expired: 'Сессия Claude истекла — войди в claude.ai заново и повтори.',
-  refused: 'Claude не стал отвечать на этот вопрос. Переформулируй его.',
-  prompt_too_large: 'Слишком длинный вопрос. Спроси короче или начни разговор заново.',
-  image_rejected: 'Картинку не удалось отправить: нужен JPG, PNG или WebP до 20 МБ.',
-  empty_completion: 'Пришёл пустой ответ. Попробуй переформулировать вопрос.',
-  upstream_error: 'Связь с Claude оборвалась. Попробуй ещё раз.',
-};
-
-const PERMANENT_ERRORS = new Set([
-  'not_granted',
-  'sampling_disabled',
-  'not_declared',
-  'capability_disabled',
-  'capability_removed',
-]);
 
 function loadMarked() {
   askState.markedPromise ??= import(MARKED_URL).then(({ Marked }) => {
@@ -22098,12 +22212,15 @@ function loadMarked() {
   return askState.markedPromise;
 }
 
-async function renderAnswer(target, text) {
+async function renderAnswer(target, text, prefixHtml = '') {
   try {
     const marked = await loadMarked();
-    target.innerHTML = marked.parse(text);
+    target.innerHTML = prefixHtml + marked.parse(text);
   } catch {
-    target.textContent = text;
+    target.innerHTML = prefixHtml;
+    const p = document.createElement('p');
+    p.textContent = text;
+    target.appendChild(p);
   }
 }
 
@@ -22125,11 +22242,6 @@ function chapterContext() {
   return `Глава ${meta.id} «${meta.title}» (${meta.part}).\nРазделы главы:\n${headings}\n\nТекст главы (фрагмент, где сейчас читатель):\n<<<\n${text}\n>>>`;
 }
 
-function instructionTurn() {
-  const rules = askState.mode === 'exam' ? TEACHER_RULES : MITRICH_RULES;
-  return { role: 'user', content: `${rules}\n\n${chapterContext()}` };
-}
-
 function byteLength(value) {
   return new TextEncoder().encode(value).length;
 }
@@ -22139,7 +22251,7 @@ function trimTurns(turns) {
   const kept = [...turns];
   const size = () => kept.reduce((sum, t) => sum + byteLength(t.content), 0);
   while (kept.length > 2 && size() > budget) {
-    kept.splice(1, 2); // drop the oldest question/answer pair, keep the instructions
+    kept.splice(1, 2);
   }
   return kept;
 }
@@ -22160,25 +22272,200 @@ function setBusy(busy) {
   el.askStop.hidden = !busy;
 }
 
+function updateModelBadge() {
+  if (!el.askModelBadge) return;
+  if (!askState.apiKey) {
+    el.askModelBadge.textContent = '🔑 Нужен API Key';
+    el.askModelBadge.style.color = 'var(--red)';
+    el.askModelBadge.style.background = 'var(--red-soft)';
+    return;
+  }
+  const modelName = askState.model || 'поиск...';
+  const isGemini3 = modelName.includes('3.') || modelName.includes('gemini-3');
+  const levelText = isGemini3 ? 'HIGH' : 'Dynamic';
+  el.askModelBadge.textContent = `⚡ ${modelName} (${levelText})`;
+  el.askModelBadge.style.color = 'var(--blue)';
+  el.askModelBadge.style.background = 'var(--blue-soft)';
+}
+
+async function discoverGeminiModels(key) {
+  if (!key) return [];
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    if (!res.ok) {
+      throw new Error(`Google API status ${res.status}`);
+    }
+    const data = await res.json();
+    const raw = data.models || [];
+    const models = raw
+      .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map((m) => m.name.replace(/^models\//, ''));
+
+    // Приоритеты: 3.8 flash-lite > 3.8 flash > 3.5 > 3.1 > 3.0 > 2.5 > 2.0
+    const score = (name) => {
+      let s = 0;
+      if (name.includes('3.8')) s += 800;
+      else if (name.includes('3.5')) s += 700;
+      else if (name.includes('3.1')) s += 600;
+      else if (name.includes('3.0') || name.includes('gemini-3')) s += 500;
+      else if (name.includes('2.5')) s += 400;
+      else if (name.includes('2.0')) s += 300;
+      else if (name.includes('1.5')) s += 200;
+
+      if (name.includes('flash-lite')) s += 60;
+      else if (name.includes('flash')) s += 40;
+      else if (name.includes('pro')) s += 20;
+      return s;
+    };
+
+    models.sort((a, b) => score(b) - score(a));
+    return models;
+  } catch (err) {
+    console.warn('[Discovery error]', err);
+    return [];
+  }
+}
+
+function populateModelSelect(models) {
+  if (!el.askModelSelect || !el.askModelPicker) return;
+  el.askModelSelect.replaceChildren();
+  for (const m of models) {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = m;
+    if (m === askState.model) opt.selected = true;
+    el.askModelSelect.appendChild(opt);
+  }
+  el.askModelPicker.hidden = models.length === 0;
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      const base64 = result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function callGemini(userText, file) {
+  const model = askState.model || 'gemini-3.8-flash-lite';
+  const isGemini3 = model.includes('3.') || model.includes('gemini-3') || model.includes('gemini-exp');
+  const isGemini25 = model.includes('2.5');
+
+  const rules = askState.mode === 'exam' ? TEACHER_RULES : MITRICH_RULES;
+  const systemInstruction = {
+    parts: [{ text: `${rules}\n\n${chapterContext()}` }],
+  };
+
+  const generationConfig = {};
+  if (isGemini3) {
+    generationConfig.thinkingConfig = {
+      thinkingLevel: 'HIGH',
+    };
+  } else if (isGemini25) {
+    generationConfig.thinkingConfig = {
+      thinkingBudget: -1,
+    };
+  }
+
+  const contents = [];
+  for (const turn of askState.turns) {
+    contents.push({
+      role: turn.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: turn.content }],
+    });
+  }
+
+  const currentParts = [];
+  if (file) {
+    const base64 = await fileToBase64(file);
+    currentParts.push({
+      inlineData: {
+        mimeType: file.type,
+        data: base64,
+      },
+    });
+  }
+  currentParts.push({ text: userText });
+  contents.push({ role: 'user', parts: currentParts });
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${askState.apiKey}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents,
+      systemInstruction,
+      generationConfig,
+    }),
+    signal: askState.controller.signal,
+  });
+
+  if (!res.ok) {
+    const errJson = await res.json().catch(() => ({}));
+    const errMsg = errJson?.error?.message || `Ошибка Google API (${res.status})`;
+    throw new Error(errMsg);
+  }
+
+  const data = await res.json();
+  const candidate = data.candidates?.[0];
+  if (!candidate) {
+    throw new Error('Модель вернула пустой ответ.');
+  }
+
+  let thoughtText = '';
+  let answerText = '';
+
+  const parts = candidate.content?.parts || [];
+  for (const part of parts) {
+    if (part.thought) {
+      thoughtText += (thoughtText ? '\n' : '') + part.text;
+    } else if (part.text) {
+      const thoughtMatch = part.text.match(/<thought>([\s\S]*?)<\/thought>/i);
+      if (thoughtMatch) {
+        thoughtText += (thoughtText ? '\n' : '') + thoughtMatch[1].trim();
+        answerText += (answerText ? '\n' : '') + part.text.replace(/<thought>[\s\S]*?<\/thought>/gi, '').trim();
+      } else {
+        answerText += (answerText ? '\n' : '') + part.text;
+      }
+    }
+  }
+
+  return { thoughtText, answerText: answerText || '...' };
+}
+
 function resetConversation() {
   askState.controller?.abort();
   askState.turns = [];
   el.askLog.replaceChildren();
   const chapter = currentChapter ? `главе ${currentChapter}` : 'учебнику';
+  if (!askState.apiKey) {
+    el.askHint.textContent = `🔑 Введите ваш Gemini API Key в панели настроек ⚙️ выше для начала диалога.`;
+    return;
+  }
   if (askState.mode === 'exam') {
     el.askHint.textContent = `Учитель задаёт вопрос по ${chapter} по-польски, ты отвечаешь, он проверяет и даёт образцовый ответ. Нажми «Отправить» с пустым полем — получишь первый вопрос.`;
     el.askInput.placeholder = 'Твой ответ учителю (можно по-польски)…';
   } else {
-    el.askHint.textContent = `Митрич видит текст открытой главы и отвечает по ${chapter}. Спрашивай, что непонятно. Вопросы расходуют лимит твоего аккаунта Claude.`;
+    el.askHint.textContent = `Митрич видит текст открытой главы и отвечает по ${chapter}. Задавай любые вопросы!`;
     el.askInput.placeholder = 'Что непонятно в этой главе?';
   }
 }
 
 async function sendAsk(event) {
   event.preventDefault();
-  if (!askState.sample) {
+  if (!askState.apiKey) {
+    if (el.askSettings) el.askSettings.hidden = false;
+    if (el.askKeyInput) el.askKeyInput.focus();
+    addMessage('note', 'Сначала укажите Gemini API Key в панели настроек выше.');
     return;
   }
+
   let text = el.askInput.value.trim();
   if (!text && askState.mode === 'exam') {
     text = askState.turns.length ? 'Zadaj mi kolejne pytanie.' : 'Zadaj mi pierwsze pytanie.';
@@ -22187,39 +22474,34 @@ async function sendAsk(event) {
     el.askInput.focus();
     return;
   }
+
   const file = el.askAttach.files?.[0] ?? null;
-  if (!askState.turns.length) {
-    askState.turns.push(instructionTurn());
-  }
-  askState.turns.push({ role: 'user', content: text });
-  askState.turns = trimTurns(askState.turns);
   addMessage('user', file ? `${text}\n📎 ${file.name}` : text);
   el.askInput.value = '';
   el.askAttach.value = '';
 
   const answer = addMessage('assistant', '');
-  answer.textContent = 'Митрич думает…';
+  answer.textContent = 'Митрич думает (Reasoning: HIGH)…';
   askState.controller = new AbortController();
   setBusy(true);
+
   try {
-    const options = {
-      cache: false,
-      signal: askState.controller.signal,
-      onText: ({ text: partial }) => {
-        void renderAnswer(answer, partial);
-      },
-    };
-    if (file) {
-      options.images = file;
+    const result = await callGemini(text, file);
+    let prefixHtml = '';
+    if (result.thoughtText) {
+      prefixHtml = `<details class="ask__thought"><summary>🧠 Ход мыслей Митрича (Reasoning: HIGH)</summary><div class="ask__thought-body">${escapeHtml(result.thoughtText)}</div></details>`;
     }
-    const result = await askState.sample(askState.turns, options);
-    await renderAnswer(answer, result.text);
-    askState.turns.push({ role: 'assistant', content: result.text });
-    if (result.truncated) {
-      addMessage('note', 'Ответ обрезан по длине. Спроси уже, конкретнее.');
-    }
+    await renderAnswer(answer, result.answerText, prefixHtml);
+    askState.turns.push({ role: 'user', content: text });
+    askState.turns.push({ role: 'assistant', content: result.answerText });
+    askState.turns = trimTurns(askState.turns);
   } catch (error) {
-    handleAskError(error, answer);
+    if (error.name === 'AbortError') {
+      answer.remove();
+      return;
+    }
+    answer.remove();
+    addMessage('note', `❌ ${error.message}`);
   } finally {
     setBusy(false);
     askState.controller = null;
@@ -22227,74 +22509,107 @@ async function sendAsk(event) {
   }
 }
 
-function handleAskError(error, answer) {
-  const code = error?.code ?? 'upstream_error';
-  // A cancelled or refused question is dropped from the conversation; after
-  // other failures it stays, so the next message keeps the context.
-  if (code === 'cancelled' || code === 'refused') {
-    askState.turns.pop();
-    if (askState.turns.length === 1) {
-      askState.turns = [];
-    }
-  }
-  if (code === 'cancelled') {
-    if (!error.text) {
-      answer.remove();
-    }
-    return;
-  }
-  if (PERMANENT_ERRORS.has(code)) {
-    answer.remove();
-    addMessage('note', 'Спрашивать Claude из этого окна нельзя. Открой учебник в claude.ai под своим аккаунтом.');
-    el.askFab.hidden = true;
-    return;
-  }
-  if (code === 'images_unavailable') {
-    el.askAttachLabel.hidden = true;
-  }
-  if (code === 'refused' || !error?.text) {
-    answer.remove();
-  } else {
-    void renderAnswer(answer, error.text);
-  }
-  addMessage('note', ERROR_TEXT[code] ?? ERROR_TEXT.upstream_error);
-}
-
 function openAsk() {
   el.ask.hidden = false;
   el.askFab.hidden = true;
+  if (!askState.apiKey && el.askSettings) {
+    el.askSettings.hidden = false;
+  }
   if (!askState.turns.length) {
     resetConversation();
   }
-  el.askInput.focus();
+  if (askState.apiKey) {
+    el.askInput.focus();
+  } else if (el.askKeyInput) {
+    el.askKeyInput.focus();
+  }
 }
 
 function closeAsk() {
-  if (el.ask.hidden) {
-    return;
-  }
+  if (el.ask.hidden) return;
   el.ask.hidden = true;
-  el.askFab.hidden = !askState.sample;
+  el.askFab.hidden = false;
 }
 
 async function wireAsk() {
-  const sample = await claudeUse('sample');
-  if (!sample) {
-    return;
-  }
-  askState.sample = sample;
   el.askFab.hidden = false;
-  const limits = await sample.limits?.().catch(() => null);
-  el.askAttachLabel.hidden = !limits?.images;
-  if (limits?.images) {
-    el.askAttach.accept = limits.images.mediaTypes.join(',');
+  updateModelBadge();
+
+  if (askState.apiKey && el.askKeyInput) {
+    el.askKeyInput.value = askState.apiKey;
+    void discoverGeminiModels(askState.apiKey).then((models) => {
+      askState.models = models;
+      populateModelSelect(models);
+      if (!askState.model && models.length > 0) {
+        askState.model = models[0];
+        localStorage.setItem(STORAGE_MODEL, askState.model);
+        updateModelBadge();
+      }
+    });
   }
+
   el.askFab.addEventListener('click', openAsk);
   el.askClose.addEventListener('click', closeAsk);
-  el.askStop.addEventListener('click', () => askState.controller?.abort());
+  if (el.askStop) {
+    el.askStop.addEventListener('click', () => askState.controller?.abort());
+  }
+
+  if (el.askSettingsBtn) {
+    el.askSettingsBtn.addEventListener('click', () => {
+      el.askSettings.hidden = !el.askSettings.hidden;
+      if (!el.askSettings.hidden && el.askKeyInput) {
+        el.askKeyInput.focus();
+      }
+    });
+  }
+
+  if (el.askKeySave) {
+    el.askKeySave.addEventListener('click', async () => {
+      const key = el.askKeyInput.value.trim();
+      if (!key) {
+        alert('Введите API ключ Google Gemini');
+        return;
+      }
+      el.askKeySave.disabled = true;
+      el.askKeySave.textContent = 'Discovery...';
+      try {
+        const models = await discoverGeminiModels(key);
+        if (!models.length) {
+          alert('Не удалось получить список моделей с этим ключом. Проверьте правильность ключа.');
+          return;
+        }
+        askState.apiKey = key;
+        localStorage.setItem(STORAGE_KEY, key);
+        askState.models = models;
+        populateModelSelect(models);
+        askState.model = models[0];
+        localStorage.setItem(STORAGE_MODEL, askState.model);
+        updateModelBadge();
+        el.askSettings.hidden = true;
+        resetConversation();
+        addMessage('note', `✅ Подключено! Модель: ${askState.model} с максимальным рассуждением (HIGH).`);
+      } catch (err) {
+        alert('Ошибка Discovery: ' + err.message);
+      } finally {
+        el.askKeySave.disabled = false;
+        el.askKeySave.textContent = 'Сохранить';
+      }
+    });
+  }
+
+  if (el.askModelSelect) {
+    el.askModelSelect.addEventListener('change', () => {
+      askState.model = el.askModelSelect.value;
+      localStorage.setItem(STORAGE_MODEL, askState.model);
+      updateModelBadge();
+      addMessage('note', `Переключено на модель: ${askState.model}`);
+    });
+  }
+
   el.askForm.addEventListener('submit', (event) => {
     void sendAsk(event);
   });
+
   for (const tab of el.ask.querySelectorAll('.ask__mode')) {
     tab.addEventListener('click', () => {
       askState.mode = tab.dataset.mode;
@@ -22306,6 +22621,7 @@ async function wireAsk() {
       resetConversation();
     });
   }
+
   window.addEventListener('hashchange', () => {
     if (askState.turns.length) {
       addMessage('note', 'Ты открыл другую главу. Следующий вопрос начнёт новый разговор по ней.');
