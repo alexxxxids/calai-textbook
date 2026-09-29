@@ -22638,6 +22638,7 @@ function resetConversation() {
 
 async function sendAsk(event) {
   event.preventDefault();
+  if (askState.controller) return;
   if (!askState.apiKey) {
     if (el.askSettings) el.askSettings.hidden = false;
     if (el.askKeyInput) el.askKeyInput.focus();
