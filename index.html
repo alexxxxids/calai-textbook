@@ -1,8 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)" data-native-theme="light">
+<meta name="theme-color" content="#16211d" media="(prefers-color-scheme: dark)" data-native-theme="dark">
 <title>Учебник CalAI</title>
 <meta name="description" content="Пошаговый учебник от нуля до защиты: веб, TypeScript, Next.js, Supabase, алгоритмы и ИИ на примере школьного проекта CalAI.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=JetBrains+Mono:wght@400;600&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..600&family=Oswald:wght@500;600&display=swap">
+<script>
+try {
+  const t = localStorage.getItem('calai.theme');
+  if (t === 'light' || t === 'dark') {
+    document.documentElement.dataset.theme = t;
+    const color = t === 'dark' ? '#16211d' : '#f5f7fb';
+    const native = document.querySelectorAll('meta[data-native-theme]');
+    native.forEach(function(el) { el.removeAttribute('name'); });
+    const override = document.createElement('meta');
+    override.name = 'theme-color';
+    override.setAttribute('data-override', 'true');
+    override.content = color;
+    document.head.append(override);
+  } else if (matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.dataset.theme = 'dark';
+  }
+} catch {}
+</script>
 <style>
 /* ============================================================
    Учебник CalAI — «тетрадь в клетку» днём, «школьная доска» ночью.
@@ -141,6 +167,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -206,6 +233,21 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar__close {
+  display: none;
+}
+
+body.is-locked {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .main {
@@ -933,7 +975,8 @@ a:hover {
 .callout__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
+  min-height: 44px;
   gap: 4px 12px;
   padding: 10px 16px;
   background: var(--accent-soft);
@@ -1039,6 +1082,8 @@ details[open] > summary.callout__head::after {
   margin: 0;
   padding: 8px 16px 14px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   font-family: var(--font-mono);
   font-size: 13.5px;
   line-height: 1.6;
@@ -1112,6 +1157,8 @@ details[open] > summary.callout__head::after {
 
 .table-wrap {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   margin-block: 1.2em;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
@@ -1156,6 +1203,8 @@ details[open] > summary.callout__head::after {
   border-radius: var(--radius);
   background: var(--surface);
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   text-align: center;
 }
 
@@ -1197,12 +1246,19 @@ details[open] > summary.callout__head::after {
 .pager a {
   display: grid;
   gap: 2px;
+  min-height: 52px;
   padding: 14px 16px;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   background: var(--surface);
   text-decoration: none;
   color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.pager a:active {
+  transform: scale(0.98);
 }
 
 .pager a:hover {
@@ -1299,6 +1355,17 @@ details[open] > summary.callout__head::after {
   border-radius: 16px;
   box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+}
+
+.ask__drag-handle {
+  display: none;
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--rule-strong);
+  margin: 10px auto 4px;
+  cursor: grab;
+  flex-shrink: 0;
 }
 
 .ask__head {
@@ -1690,13 +1757,41 @@ details[open] > summary.callout__head::after {
   .topbar {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     position: sticky;
-    top: env(safe-area-inset-top, 0px);
+    top: 0;
     z-index: 20;
-    padding: 8px 16px;
-    background: var(--surface);
+    padding-top: calc(8px + env(safe-area-inset-top, 0px));
+    padding-bottom: 8px;
+    padding-left: calc(10px + env(safe-area-inset-left, 0px));
+    padding-right: calc(10px + env(safe-area-inset-right, 0px));
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--rule);
+  }
+
+  .topbar button,
+  .topbar .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 18px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  .topbar button:active,
+  .topbar .icon-button:active {
+    background: var(--surface-2);
+    transform: scale(0.92);
   }
 
   .topbar__title {
@@ -1706,31 +1801,66 @@ details[open] > summary.callout__head::after {
     color: var(--ink);
     text-decoration: none;
     white-space: nowrap;
+    margin-right: 4px;
   }
 
   .topbar__chapter {
     min-width: 0;
+    flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 14px;
+    font-size: 13.5px;
     color: var(--ink-3);
+  }
+
+  .topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
     z-index: 50;
-    width: min(320px, 86vw);
+    width: min(340px, 86vw);
     height: 100dvh;
-    padding-top: calc(20px + env(safe-area-inset-top, 0px));
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(16px + env(safe-area-inset-left, 0px));
+    padding-right: 16px;
     transform: translateX(-102%);
-    transition: transform 0.25s ease;
-    box-shadow: var(--shadow);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 32px rgba(0, 0, 0, 0.25);
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sidebar.is-open {
     transform: translateX(0);
+  }
+
+  .sidebar__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 20px;
+    border: none;
+    background: transparent;
+    color: var(--ink-2);
+    border-radius: 8px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease;
+  }
+
+  .sidebar__close:active {
+    background: var(--surface-2);
   }
 
   .scrim {
@@ -1741,8 +1871,8 @@ details[open] > summary.callout__head::after {
   }
 
   .main {
-    padding-block: 24px 96px;
-    padding-inline: 16px;
+    padding-block: 24px calc(96px + env(safe-area-inset-bottom, 0px));
+    padding-inline: calc(16px + env(safe-area-inset-left, 0px)) calc(16px + env(safe-area-inset-right, 0px));
   }
 
   .anchor {
@@ -1750,25 +1880,84 @@ details[open] > summary.callout__head::after {
   }
 }
 
+@media (max-width: 768px) {
+  .ask {
+    position: fixed;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: min(92dvh, 720px);
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
+    border-radius: 20px 20px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.28);
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    animation: askSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ask__drag-handle {
+    display: block;
+  }
+
+  .ask-fab {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    font-size: 19px;
+    padding: 10px 18px;
+  }
+}
+
+@keyframes askSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 520px) {
   body {
-    font-size: 16px;
+    font-size: 16.5px;
+    line-height: 1.65;
+  }
+
+  .prose h1 {
+    font-size: 26px;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .prose h2 {
-    font-size: 23px;
+    font-size: 22px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .prose h3 {
+    font-size: 18.5px;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .home__lead {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .home__quote {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .code pre {
-    font-size: 12.5px;
+    font-size: 13px;
+  }
+
+  .main {
+    padding-block: 16px calc(88px + env(safe-area-inset-bottom, 0px));
+    padding-inline: calc(14px + env(safe-area-inset-left, 0px)) calc(14px + env(safe-area-inset-right, 0px));
   }
 }
 
@@ -1783,14 +1972,23 @@ details[open] > summary.callout__head::after {
 }
 
 </style>
+</head>
+<body>
 <div class="app" id="app">
   <header class="topbar">
     <button class="icon-button" id="menu-toggle" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Оглавление">☰</button>
     <a class="topbar__title" href="#home">Учебник CalAI</a>
     <span class="topbar__chapter" id="topbar-chapter"></span>
+    <div class="topbar__actions">
+      <button class="icon-button" id="search-toggle" type="button" aria-label="Поиск по учебнику" title="Поиск (/)">🔍</button>
+      <button class="icon-button" id="theme-toggle" type="button" aria-label="Переключить тему" title="Переключить тему">🌓</button>
+    </div>
   </header>
   <nav class="sidebar" id="sidebar" aria-label="Оглавление">
-    <a class="sidebar__brand" href="#home"><span class="sidebar__brand-top">Учебник</span><span class="sidebar__brand-name">CalAI</span></a>
+    <div class="sidebar__header">
+      <a class="sidebar__brand" href="#home"><span class="sidebar__brand-top">Учебник</span><span class="sidebar__brand-name">CalAI</span></a>
+      <button class="icon-button sidebar__close" id="sidebar-close" type="button" aria-label="Закрыть оглавление" title="Закрыть">✕</button>
+    </div>
     <div class="search">
       <label class="visually-hidden" for="search-input">Поиск по учебнику</label>
       <input id="search-input" class="search__input" type="search" placeholder="Поиск по учебнику  /" autocomplete="off">
@@ -1827,6 +2025,7 @@ details[open] > summary.callout__head::after {
 </div>
 <button class="ask-fab" id="ask-fab" type="button">Спросить Митрича</button>
 <section class="ask" id="ask" hidden aria-labelledby="ask-title">
+  <div class="ask__drag-handle" aria-hidden="true"></div>
   <header class="ask__head">
     <div class="ask__head-info">
       <h2 id="ask-title">Спросить Митрича</h2>
@@ -21765,8 +21964,11 @@ const el = {
   reader: document.getElementById('reader'),
   main: document.getElementById('main'),
   sidebar: document.getElementById('sidebar'),
+  sidebarClose: document.getElementById('sidebar-close'),
   scrim: document.getElementById('scrim'),
   menuToggle: document.getElementById('menu-toggle'),
+  themeToggle: document.getElementById('theme-toggle'),
+  searchToggle: document.getElementById('search-toggle'),
   topbarChapter: document.getElementById('topbar-chapter'),
   pagetoc: document.getElementById('pagetoc'),
   searchInput: document.getElementById('search-input'),
@@ -21838,6 +22040,51 @@ function isDarkTheme() {
     return explicit === 'dark';
   }
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function syncThemeColorMeta(theme) {
+  const nativeTags = document.querySelectorAll('meta[data-native-theme]');
+  let override = document.querySelector('meta[data-override="true"]');
+  if (!theme || theme === 'auto' || theme === 'system') {
+    nativeTags.forEach((el) => el.setAttribute('name', 'theme-color'));
+    override?.remove();
+    return;
+  }
+  const color = theme === 'dark' ? '#16211d' : '#f5f7fb';
+  nativeTags.forEach((el) => el.removeAttribute('name'));
+  if (!override) {
+    override = document.createElement('meta');
+    override.name = 'theme-color';
+    override.setAttribute('data-override', 'true');
+    document.head.append(override);
+  }
+  override.setAttribute('content', color);
+}
+
+function updateThemeButton() {
+  if (!el.themeToggle) return;
+  const dark = isDarkTheme();
+  el.themeToggle.textContent = dark ? '☀️' : '🌙';
+  el.themeToggle.title = dark ? 'Светлая тема' : 'Тёмная тема';
+  el.themeToggle.setAttribute('aria-label', dark ? 'Переключить на светлую тему' : 'Переключить на тёмную тему');
+}
+
+function toggleTheme() {
+  const next = isDarkTheme() ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  store.set('theme', next);
+  updateThemeButton();
+  syncThemeColorMeta(next);
+}
+
+function wireTopActions() {
+  updateThemeButton();
+  el.themeToggle?.addEventListener('click', toggleTheme);
+  el.searchToggle?.addEventListener('click', () => {
+    openMenu();
+    el.searchInput?.focus();
+    el.searchInput?.select();
+  });
 }
 
 // ------------------------------------------------------------ progress
@@ -22247,29 +22494,119 @@ function wireSearch() {
 
 // ------------------------------------------------------------ mobile menu
 
+function updateBodyLock() {
+  const isMobileSidebar = window.matchMedia('(max-width: 960px)').matches;
+  const isMobileAsk = window.matchMedia('(max-width: 768px)').matches;
+  const sidebarOpen = isMobileSidebar && el.sidebar?.classList.contains('is-open');
+  const askOpen = isMobileAsk && !el.ask?.hidden;
+  document.body.classList.toggle('is-locked', Boolean(sidebarOpen || askOpen));
+}
+
 function openMenu() {
   if (window.matchMedia('(max-width: 960px)').matches) {
     el.sidebar.classList.add('is-open');
     el.scrim.hidden = false;
     el.menuToggle.setAttribute('aria-expanded', 'true');
+    updateBodyLock();
   }
 }
 
-function closeMenu() {
-  el.sidebar.classList.remove('is-open');
-  el.scrim.hidden = true;
-  el.menuToggle.setAttribute('aria-expanded', 'false');
+function closeMenu(immediate = false) {
+  const isSidebarClosed = !el.sidebar?.classList.contains('is-open');
+  const isScrimHidden = el.scrim ? Boolean(el.scrim.hidden) : true;
+  if (isSidebarClosed && isScrimHidden) {
+    return;
+  }
+  let prevTransition = '';
+  if (immediate && el.sidebar) {
+    prevTransition = el.sidebar.style.transition;
+    el.sidebar.style.transition = 'none';
+  }
+  el.sidebar?.classList.remove('is-open');
+  if (el.scrim) el.scrim.hidden = true;
+  el.menuToggle?.setAttribute('aria-expanded', 'false');
+  updateBodyLock();
+  if (immediate && el.sidebar) {
+    void el.sidebar.offsetHeight;
+    el.sidebar.style.transition = prevTransition;
+  }
 }
 
 function wireMenu() {
-  el.menuToggle.addEventListener('click', () => {
+  el.menuToggle?.addEventListener('click', () => {
     if (el.sidebar.classList.contains('is-open')) {
       closeMenu();
     } else {
       openMenu();
     }
   });
-  el.scrim.addEventListener('click', closeMenu);
+  el.sidebarClose?.addEventListener('click', () => closeMenu());
+  el.scrim?.addEventListener('click', () => closeMenu());
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+  el.sidebar?.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
+  el.sidebar?.addEventListener('touchend', (e) => {
+    const deltaX = e.changedTouches[0].clientX - touchStartX;
+    const deltaY = e.changedTouches[0].clientY - touchStartY;
+    if (deltaX < -50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      closeMenu();
+    }
+  }, { passive: true });
+}
+
+function listenMql(mql, handler) {
+  if (!mql) return () => {};
+  if (typeof mql.addEventListener === 'function') {
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }
+  if (typeof mql.addListener === 'function') {
+    mql.addListener(handler);
+    return () => mql.removeListener(handler);
+  }
+  return () => {};
+}
+
+function wireBreakpoints() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return () => {};
+  const mqlSidebar = window.matchMedia('(max-width: 960px)');
+  const mqlAsk = window.matchMedia('(max-width: 768px)');
+
+  const handleSidebarChange = (e) => {
+    if (!e.matches) {
+      closeMenu(true);
+    }
+    updateBodyLock();
+  };
+
+  const handleAskChange = () => {
+    updateBodyLock();
+  };
+
+  const unlistenSidebar = listenMql(mqlSidebar, handleSidebarChange);
+  const unlistenAsk = listenMql(mqlAsk, handleAskChange);
+
+  if (el.sidebar?.classList.contains('is-open') && !mqlSidebar.matches) {
+    closeMenu(true);
+  }
+  updateBodyLock();
+
+  const handlePageShow = (event) => {
+    if (event.persisted && !mqlSidebar.matches) {
+      closeMenu(true);
+    }
+  };
+  window.addEventListener('pageshow', handlePageShow);
+
+  return () => {
+    unlistenSidebar();
+    unlistenAsk();
+    window.removeEventListener('pageshow', handlePageShow);
+  };
 }
 
 // ------------------------------------------------------------ claude.ai capabilities
@@ -22697,28 +23034,51 @@ async function sendAsk(event) {
 function openAsk() {
   el.ask.hidden = false;
   el.askFab.hidden = true;
+  updateBodyLock();
   if (!askState.apiKey && el.askSettings) {
     el.askSettings.hidden = false;
   }
   if (!askState.turns.length) {
     resetConversation();
   }
-  if (askState.apiKey) {
-    el.askInput.focus();
-  } else if (el.askKeyInput) {
-    el.askKeyInput.focus();
+  if (!window.matchMedia('(max-width: 768px)').matches) {
+    if (askState.apiKey) {
+      el.askInput.focus();
+    } else if (el.askKeyInput) {
+      el.askKeyInput.focus();
+    }
   }
 }
 
 function closeAsk() {
   if (el.ask.hidden) return;
+  askState.controller?.abort();
+  askState.controller = null;
   el.ask.hidden = true;
   el.askFab.hidden = false;
+  updateBodyLock();
 }
 
 async function wireAsk() {
   el.askFab.hidden = false;
   updateModelBadge();
+
+  let askTouchStartY = 0;
+  const dragHandle = el.ask?.querySelector('.ask__drag-handle');
+  const askHead = el.ask?.querySelector('.ask__head');
+  const bindDragToClose = (target) => {
+    target?.addEventListener('touchstart', (e) => {
+      askTouchStartY = e.changedTouches[0].clientY;
+    }, { passive: true });
+    target?.addEventListener('touchend', (e) => {
+      const deltaY = e.changedTouches[0].clientY - askTouchStartY;
+      if (deltaY > 60) {
+        closeAsk();
+      }
+    }, { passive: true });
+  };
+  bindDragToClose(dragHandle);
+  bindDragToClose(askHead);
 
   if (askState.apiKey && el.askKeyInput) {
     el.askKeyInput.value = askState.apiKey;
@@ -22835,6 +23195,8 @@ async function wireComments() {
 // ------------------------------------------------------------ start
 
 wireMenu();
+wireBreakpoints();
+wireTopActions();
 wireSearch();
 rerenderDiagramsOnThemeChange();
 window.addEventListener('hashchange', route);
@@ -22844,3 +23206,5 @@ void wireAsk();
 void wireComments();
 
 </script>
+</body>
+</html>
