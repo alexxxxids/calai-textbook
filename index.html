@@ -170,6 +170,10 @@ try {
   -webkit-tap-highlight-color: transparent;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   background: var(--paper);
   color: var(--ink);
@@ -719,6 +723,89 @@ body.is-locked {
   margin-top: 16px;
 }
 
+.button--has-note {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.chapter-note {
+  max-width: var(--measure);
+  margin: -16px auto 32px;
+  padding: 16px 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--rule-strong);
+  border-left: 4px solid var(--amber);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: noteSlideDown 0.2s ease-out;
+}
+
+@keyframes noteSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chapter-note__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chapter-note__title {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chapter-note__input {
+  width: 100%;
+  min-height: 96px;
+  padding: 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.chapter-note__input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-soft);
+}
+
+.chapter-note__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.chapter-note__status {
+  margin-right: auto;
+  font-size: 13px;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+}
+
 .prose {
   max-width: var(--measure);
   margin-inline: auto;
@@ -1206,6 +1293,13 @@ details[open] > summary.callout__head::after {
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   text-align: center;
+}
+
+.reader img,
+.diagram.is-rendered,
+.diagram.is-rendered .diagram__svg,
+.diagram.is-rendered svg {
+  cursor: zoom-in;
 }
 
 .diagram svg {
@@ -1961,6 +2055,118 @@ details[open] > summary.callout__head::after {
   }
 }
 
+/* ------------------------------------------------------------ lightbox */
+
+body.lightbox-open {
+  overflow: hidden;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lightbox[hidden] {
+  display: none !important;
+}
+
+.lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 14, 22, 0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.lightbox__viewport {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.lightbox__viewport.is-dragging {
+  cursor: grabbing;
+}
+
+.lightbox__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  will-change: transform;
+  pointer-events: auto;
+}
+
+.lightbox__stage svg,
+.lightbox__stage img {
+  max-width: 90vw !important;
+  max-height: 85vh !important;
+  width: auto;
+  height: auto;
+  display: block;
+  border-radius: var(--radius);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox__stage svg {
+  background: var(--surface);
+  padding: 16px;
+  border: 1px solid var(--rule);
+}
+
+.lightbox__controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.lightbox__btn {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.lightbox__btn:hover {
+  background: var(--surface-hover, var(--rule));
+  border-color: var(--ink-3);
+}
+
+.lightbox__close {
+  font-size: 16px;
+}
+
+.lightbox-placeholder {
+  pointer-events: none;
+  visibility: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2023,7 +2229,7 @@ details[open] > summary.callout__head::after {
   </main>
   <aside class="pagetoc" id="pagetoc" aria-label="На этой странице"></aside>
 </div>
-<button class="ask-fab" id="ask-fab" type="button">Спросить Митрича</button>
+<button class="ask-fab" id="ask-fab" type="button" aria-expanded="false" aria-controls="ask">Спросить Митрича</button>
 <section class="ask" id="ask" hidden aria-labelledby="ask-title">
   <div class="ask__drag-handle" aria-hidden="true"></div>
   <header class="ask__head">
@@ -2066,6 +2272,18 @@ details[open] > summary.callout__head::after {
     </div>
   </form>
 </section>
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Просмотр">
+  <div class="lightbox__backdrop" id="lightbox-backdrop"></div>
+  <div class="lightbox__viewport" id="lightbox-viewport">
+    <div class="lightbox__stage" id="lightbox-stage"></div>
+  </div>
+  <div class="lightbox__controls">
+    <button class="icon-button lightbox__btn" id="lightbox-zoom-in" type="button" aria-label="Увеличить" title="Увеличить (+)">➕</button>
+    <button class="icon-button lightbox__btn" id="lightbox-zoom-out" type="button" aria-label="Уменьшить" title="Уменьшить (-)">➖</button>
+    <button class="icon-button lightbox__btn" id="lightbox-reset" type="button" aria-label="Сбросить масштаб" title="Сбросить (0)">1:1</button>
+    <button class="icon-button lightbox__btn lightbox__close" id="lightbox-close" type="button" aria-label="Закрыть" title="Закрыть (Esc)">✕</button>
+  </div>
+</div>
 <template id="t-c00"><blockquote>
 <p>«Чего не могу создать, того не понимаю». — Ричард Фейнман, надпись на его доске (1988)</p>
 </blockquote>
@@ -21993,6 +22211,14 @@ const el = {
   askModelBadge: document.getElementById('ask-model-badge'),
   askChips: document.getElementById('ask-chips'),
   askFileBadge: document.getElementById('ask-file-badge'),
+  lightbox: document.getElementById('lightbox'),
+  lightboxBackdrop: document.getElementById('lightbox-backdrop'),
+  lightboxViewport: document.getElementById('lightbox-viewport'),
+  lightboxStage: document.getElementById('lightbox-stage'),
+  lightboxClose: document.getElementById('lightbox-close'),
+  lightboxZoomIn: document.getElementById('lightbox-zoom-in'),
+  lightboxZoomOut: document.getElementById('lightbox-zoom-out'),
+  lightboxReset: document.getElementById('lightbox-reset'),
 };
 
 const homeHtml = el.reader.innerHTML;
@@ -22023,6 +22249,42 @@ const store = {
 };
 
 const isRead = (id) => store.get(`read.${id}`) === '1';
+
+function getChapterNote(id) {
+  const direct = store.get(`note.${id}`);
+  if (direct && direct.trim()) {
+    return direct.trim();
+  }
+  try {
+    const raw = window.localStorage.getItem('calai_chapter_notes');
+    if (raw) {
+      const all = JSON.parse(raw);
+      if (all && typeof all[id] === 'string' && all[id].trim()) {
+        return all[id].trim();
+      }
+    }
+  } catch {}
+  return '';
+}
+
+function saveChapterNote(id, text) {
+  const clean = text && text.trim() ? text.trim() : null;
+  store.set(`note.${id}`, clean);
+  try {
+    const raw = window.localStorage.getItem('calai_chapter_notes');
+    const all = raw ? JSON.parse(raw) : {};
+    if (clean) {
+      all[id] = clean;
+    } else {
+      delete all[id];
+    }
+    if (Object.keys(all).length === 0) {
+      window.localStorage.removeItem('calai_chapter_notes');
+    } else {
+      window.localStorage.setItem('calai_chapter_notes', JSON.stringify(all));
+    }
+  } catch {}
+}
 
 // ------------------------------------------------------------ helpers
 
@@ -22117,6 +22379,7 @@ function parseHash() {
 function route() {
   const { chapter, anchor } = parseHash();
   closeMenu();
+  closeLightbox();
   if (!chapter) {
     showHome();
     return;
@@ -22169,7 +22432,7 @@ function chapterHeader(meta) {
     <div class="chapter-head__meta"><span>≈ ${meta.minutes} мин чтения</span>${meta.weeks ? `<span>на практику: ${escapeHtml(meta.weeks)}</span>` : ''}</div>
     <div class="chapter-head__actions">
       <button class="button" type="button" data-action="toggle-read" aria-pressed="false"></button>
-      <button class="button" type="button" data-action="comment" hidden>Замечание к главе</button>
+      <button class="button" type="button" data-action="note" aria-expanded="false" aria-controls="chapter-note">📝 Добавить заметку</button>
     </div>`;
   const readButton = header.querySelector('[data-action="toggle-read"]');
   const syncReadButton = () => {
@@ -22183,8 +22446,104 @@ function chapterHeader(meta) {
     syncReadButton();
     updateProgress();
   });
-  wireCommentButton(header.querySelector('[data-action="comment"]'), header);
   return header;
+}
+
+function chapterNote(meta, header) {
+  const noteBtn = header.querySelector('[data-action="note"]');
+
+  const section = document.createElement('section');
+  section.className = 'chapter-note';
+  section.id = 'chapter-note';
+  section.setAttribute('aria-label', `Личная заметка к главе ${meta.id}`);
+  section.innerHTML = `
+    <div class="chapter-note__head">
+      <span class="chapter-note__title">📝 Личная заметка к главе ${escapeHtml(meta.id)} (сохраняется в браузере)</span>
+      <button type="button" class="icon-button chapter-note__close" aria-label="Закрыть заметку" title="Закрыть">✕</button>
+    </div>
+    <textarea class="chapter-note__input" rows="4" placeholder="Запиши здесь свои мысли, вопросы к учителю или важные моменты по главе..."></textarea>
+    <div class="chapter-note__actions">
+      <span class="chapter-note__status"></span>
+      <button type="button" class="button chapter-note__delete chapter-note__clear">Удалить</button>
+      <button type="button" class="button button--primary chapter-note__save">Сохранить</button>
+    </div>
+  `;
+
+  const input = section.querySelector('.chapter-note__input');
+  const status = section.querySelector('.chapter-note__status');
+  const saveBtn = section.querySelector('.chapter-note__save');
+  const deleteBtn = section.querySelector('.chapter-note__delete');
+  const closeBtn = section.querySelector('.chapter-note__close');
+
+  const syncNoteButton = () => {
+    const text = getChapterNote(meta.id);
+    const hasNote = Boolean(text && text.trim());
+    noteBtn.classList.toggle('button--has-note', hasNote);
+    noteBtn.textContent = hasNote ? '✓ Заметка к главе' : '📝 Добавить заметку';
+    noteBtn.setAttribute('aria-expanded', String(!section.hidden));
+  };
+
+  const savedText = getChapterNote(meta.id) || '';
+  const hasSavedNote = Boolean(savedText && savedText.trim());
+  section.hidden = !hasSavedNote;
+  input.value = savedText;
+  syncNoteButton();
+
+  const openNote = () => {
+    section.hidden = false;
+    syncNoteButton();
+    input.focus();
+  };
+
+  const closeNote = () => {
+    section.hidden = true;
+    syncNoteButton();
+    noteBtn.focus();
+  };
+
+  noteBtn.addEventListener('click', () => {
+    if (section.hidden) {
+      openNote();
+    } else {
+      closeNote();
+    }
+  });
+
+  closeBtn.addEventListener('click', closeNote);
+
+  // Local keydown listener on section for Escape
+  section.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      closeNote();
+    }
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const val = input.value.trim();
+    saveChapterNote(meta.id, val);
+    syncNoteButton();
+    status.textContent = '✓ Сохранено в браузере';
+    setTimeout(() => {
+      if (status.textContent === '✓ Сохранено в браузере') {
+        status.textContent = '';
+      }
+    }, 2500);
+  });
+
+  deleteBtn.addEventListener('click', () => {
+    input.value = '';
+    saveChapterNote(meta.id, null);
+    syncNoteButton();
+    status.textContent = 'Заметка удалена';
+    setTimeout(() => {
+      if (status.textContent === 'Заметка удалена') {
+        status.textContent = '';
+      }
+    }, 2500);
+  });
+
+  return section;
 }
 
 function pager(id) {
@@ -22242,11 +22601,14 @@ function showChapter(id) {
   currentChapter = id;
   store.set('last', id);
 
+  const header = chapterHeader(meta);
+  const noteSection = chapterNote(meta, header);
+
   const prose = document.createElement('div');
   prose.className = 'prose';
   prose.append(template.content.cloneNode(true));
 
-  el.reader.replaceChildren(chapterHeader(meta), prose, pager(id));
+  el.reader.replaceChildren(header, noteSection, prose, pager(id));
   el.topbarChapter.textContent = `${meta.id}. ${meta.title}`;
   setActiveLink(id);
   renderPageToc(meta);
@@ -22485,6 +22847,14 @@ function wireSearch() {
       el.searchInput.focus();
     }
     if (event.key === 'Escape') {
+      const activeNote = document.getElementById('chapter-note');
+      if (activeNote && !activeNote.hidden) {
+        activeNote.hidden = true;
+        const noteBtn = document.querySelector('[data-action="note"]');
+        noteBtn?.setAttribute('aria-expanded', 'false');
+        noteBtn?.focus();
+        return;
+      }
       el.searchResults.hidden = true;
       closeMenu();
       closeAsk();
@@ -22609,43 +22979,41 @@ function wireBreakpoints() {
   };
 }
 
-// ------------------------------------------------------------ claude.ai capabilities
-
-const claudeUse = (name) =>
-  typeof window.claude?.use === 'function' ? window.claude.use(name).catch(() => null) : Promise.resolve(null);
-
-let commentsApi = null;
-
-function wireCommentButton(button, header) {
-  if (!commentsApi) {
-    return;
-  }
-  button.hidden = false;
-  button.addEventListener('click', () => {
-    commentsApi.openComposer({ element: header }).catch((error) => {
-      if (error?.code === 'unavailable' || error?.code === 'not_granted') {
-        button.hidden = true;
-      }
-    });
-  });
-}
-
 // ------------------------------------------------------------ «Спросить Митрича» (Gemini API + Dynamic Discovery)
 
-const MITRICH_RULES = `Ты — Митрич, наставник из «Учебника CalAI»: отставной сеньор-разработчик, остроумный и точный. Твои ученики — два 18-летних новичка из Польши; они пишут школьный проект CalAI (Next.js 16, React 19, TypeScript 6, Supabase, Gemini API, FullCalendar 7, Vercel) и должны уметь объяснить его учителю по-польски.
-Правила ответа:
-1. Отвечай по-русски, коротко и по делу (до 250 слов, если не просят подробнее).
-2. Точность важнее шутки. Не уверен — прямо скажи и подскажи, где проверить (официальная документация).
-3. Важные термины давай с польским переводом: «внешний ключ (pl. klucz obcy)».
-4. Код — в блоках \`\`\` с указанием языка; только то, что относится к вопросу.
-5. Лёгкий юмор и редкое крепкое словцо можно, оскорбления — нельзя.
-6. Опирайся на текст главы ниже. Если вопрос за её пределами — ответь и скажи, какая глава об этом.`;
+const MITRICH_RULES = `Ты — Митрич, наставник и архитектор учебника CalAI: старый боевой сеньор-разработчик, душевный, проницательный и живой. Ты сидишь в тёплом свитере с большой кружкой крепкого чая, повидал на своём веку сотни проектов — от перфокарт и краха доткомов до современного реакта — и искренне болеешь за своих учеников.
 
-const TEACHER_RULES = `Ты — учитель информатики в польской школе. Ученики защищают проект CalAI (умный планер на Next.js, Supabase и Gemini), а ты проверяешь, понимают ли они свой код.
-Как вести экзамен:
-1. Когда ученик просит вопрос — задай ОДИН вопрос по теме главы ниже, как на настоящей защите: по-польски, 1–2 предложения. На отдельной строке добавь «По-русски: …» с переводом. Ответ не подсказывай.
-2. Когда ученик отвечает (по-польски или по-русски) — оцени: что верно, что упущено, что неверно; если ответ был по-польски — поправь ошибки языка; дай образцовый ответ по-польски (3–5 предложений) и его смысл по-русски. В конце предложи задать следующий вопрос.
-3. Будь строгим, но доброжелательным. Технические детали — только достоверные.`;
+Твои ученики:
+- Два 18-летних парня, школьники из Польши. Они толковые, горящие ребята, но пока новички в вебе.
+- Они пишут выпускной проект CalAI, и их главная цель — успешно защитить его в апреле 2027 года перед строгим польским учителем информатики.
+- Их главные страхи: запутаться в дебрях архитектуры, завалить защиту у доски и поддаться соблазну «вайбкодинга» (слепого копирования кода из нейронок без понимания первопричин).
+- Твоя миссия — сделать из них настоящих вдумчивых инженеров. Не просто выдать готовый ответ, а разложить всё по полочкам так, чтобы они поняли КОРЕНЬ проблемы (Root Cause) и могли уверенно защитить любую строчку кода.
+
+Твой проект CalAI (знай его до винтика):
+- Что это: умный планер времени (inteligentny planer czasu) с защитой от выгорания.
+- Ключевые фичи: задачи по типам (глубокая работа, рутина, учёба, отдых), автораскладка в свободные окна календаря, буферные зоны и защита от перегрузки, калибровка длительности задач по реальному темпу ученика, умный ИИ-разбор материалов (распознавание домашних заданий из PDF/фото) и вечерняя рефлексия.
+- Железный стек и решения (ADR): Next.js 16 (src/proxy.ts вместо устаревшего middleware, React 19, Server Actions, валидация Zod 4), Supabase (PostgreSQL, безопасность в базе: RLS на каждой таблице, auth.getClaims(), составные внешние ключи), FullCalendar 7 (@fullcalendar/react + temporal-polyfill), Gemini API (@google/genai gateway), чистые функции бизнес-логики в src/domain с тестами Vitest, интерфейс Tailwind 4 + токены shadcn.
+- Учебник состоит из 32 глав (Части 0–5: Старт, Основы Next/React/TS, База данных и RLS, Календарь и Алгоритмы, ИИ-подсистема, Продакшн и Защита).
+
+Как ты общаешься (голос и манера Митрича):
+1. Человечно, тепло и живо: обращайся к ним по-отечески («парни», «братцы», «дружище»), подбадривай, когда трудно («Спокойно, все через это проходили. Сейчас разложим на кирпичики»).
+2. Простыми инженерными аналогиями: объясняй сложные понятия через жизнь (проводка в доме, сейфы, чертежи, шестерёнки).
+3. Польская терминология к защите: обязательно давай ключевые термины по-польски с контекстом для экзамена (например: «внешний ключ (pl. klucz obcy)», «политика безопасности (pl. polityka bezpieczeństwa RLS)», «планирование задач (pl. planowanie zadań)», «буфер времени (pl. bufor czasu)»).
+4. Опирайся на контекст текущей главы ниже: Митрич всегда знает, какую главу и раздел сейчас читает ученик, какие там «Грабли» и «Советы». Если вопрос касается соседних тем, связывай их («мы это закладывали в главе 04...», «а вот к этому вернёмся в главе 19»).
+5. Борьба с костылями: пресекай попытки «быстро замазать ошибку if (!x) return». Спрашивай: «А как ты это пану учителю на защите обоснуешь?».
+6. Код: только если он действительно нужен для понимания сути. Короткий, чистый, с комментариями на английском и объяснением каждой важной строки.
+7. Размер ответа: держи баланс — обычно 150–300 ёмких, живых слов. Если пацаны просят «расскажи подробно» — разверни мысль на полную катушку.`;
+
+const TEACHER_RULES = `Ты — строгий, но справедливый учитель информатики в польской средней школе (nauczyciel informatyki). Твои 18-летние ученики защищают выпускной проект CalAI (умный планер на Next.js 16, Supabase, Gemini API и FullCalendar 7). Твоя задача на защите (апрель 2027) — проверить, действительно ли они понимают архитектуру, базу данных, безопасность и код, или просто скопировали его.
+
+Как ты ведёшь опрос:
+1. Задай ОДИН точный, прицельный вопрос строго по теме текущей открытой главы (смотри контекст главы ниже).
+2. Формат вопроса: сначала на правильном польском языке (как на настоящей защите: «Wyjaśnij, w jaki sposób...»), а следующей строкой — русский перевод («По-русски: ...»). Не подсказывай ответ.
+3. Когда ученик отвечает:
+   - Оцени ответ честно: что понято отлично, что упущено, где заблуждение.
+   - Если ученик пытался отвечать по-польски — мягко поправь грамматику и технический вокабуляр.
+   - Дай образцовый ответ на польском (2–4 предложения, которые впечатлили бы экзаменационную комиссию) и его краткий перевод.
+   - Предложи следующий вопрос по этой или следующей главе.`;
 
 const STORAGE_KEY = 'calai_gemini_key';
 const GEMINI_MODEL = 'gemini-flash-latest';
@@ -22718,12 +23086,24 @@ async function renderAnswer(target, text, prefixHtml = '') {
 
 function chapterContext() {
   if (!currentChapter) {
-    return 'Читатель сейчас на обложке учебника, конкретная глава не открыта.';
+    const courseMap = book
+      .map((c) => `  - Глава ${c.id}: ${c.title} (${c.part})`)
+      .join('\n');
+    return `Читатель сейчас на главной странице (обложке) учебника CalAI.
+Общая карта учебника (32 главы):
+${courseMap}
+Помоги ребятам сориентироваться, с чего начать изучение или как выстроена структура проекта.`;
   }
+
   const meta = byId.get(currentChapter);
+  const idx = chapterIds.indexOf(meta.id);
+  const prev = idx > 0 ? byId.get(chapterIds[idx - 1]) : null;
+  const next = idx < chapterIds.length - 1 ? byId.get(chapterIds[idx + 1]) : null;
+
   const prose = el.reader.querySelector('.prose');
-  const headings = meta.toc.map((t) => `- ${t.text}`).join('\n');
+  const headings = meta.toc.map((t) => `  - ${t.text}`).join('\n');
   let text = (prose?.innerText ?? '').replace(/\n{3,}/g, '\n\n');
+
   if (text.length > CHAPTER_CONTEXT_CHARS) {
     const visible = [...(prose?.querySelectorAll('h2') ?? [])]
       .filter((h) => h.getBoundingClientRect().top < window.innerHeight * 0.4)
@@ -22731,7 +23111,29 @@ function chapterContext() {
     const from = visible ? Math.max(0, text.indexOf(visible.innerText.replace(/^§/, '').trim())) : 0;
     text = text.slice(from, from + CHAPTER_CONTEXT_CHARS);
   }
-  return `Глава ${meta.id} «${meta.title}» (${meta.part}).\nРазделы главы:\n${headings}\n\nТекст главы (фрагмент, где сейчас читатель):\n<<<\n${text}\n>>>`;
+
+  const prevText = prev ? `Глава ${prev.id} «${prev.title}»` : 'Начало курса';
+  const nextText = next ? `Глава ${next.id} «${next.title}»` : 'Завершение курса';
+
+  const userNote = getChapterNote(meta.id);
+  const noteSnippet = userNote && userNote.trim()
+    ? `\nЛичная заметка ученика к этой главе (учитывай её в разговоре):\n«««\n${userNote.trim()}\n»»»\n`
+    : '';
+
+  return `КОНТЕКСТ ТЕКУЩЕЙ ГЛАВЫ В УЧЕБНИКЕ:
+- Активная глава: Глава ${meta.id} «${meta.title}»
+- Часть: ${meta.part}
+- Время на чтение: ≈ ${meta.minutes} мин (на практику: ${meta.weeks || '1–2 недели'})
+- Предыдущая глава: ${prevText}
+- Следующая глава: ${nextText}
+${noteSnippet}
+Разделы этой главы:
+${headings}
+
+Видимый фрагмент текста главы (то, что сейчас перед глазами у ученика):
+<<<
+${text}
+>>>`;
 }
 
 function byteLength(value) {
@@ -23034,6 +23436,7 @@ async function sendAsk(event) {
 function openAsk() {
   el.ask.hidden = false;
   el.askFab.hidden = true;
+  el.askFab.setAttribute('aria-expanded', 'true');
   updateBodyLock();
   if (!askState.apiKey && el.askSettings) {
     el.askSettings.hidden = false;
@@ -23056,6 +23459,8 @@ function closeAsk() {
   askState.controller = null;
   el.ask.hidden = true;
   el.askFab.hidden = false;
+  el.askFab.setAttribute('aria-expanded', 'false');
+  el.askFab.focus();
   updateBodyLock();
 }
 
@@ -23179,19 +23584,6 @@ async function wireAsk() {
   });
 }
 
-async function wireComments() {
-  const comments = await claudeUse('comments');
-  if (!comments) {
-    return;
-  }
-  commentsApi = comments;
-  const header = el.reader.querySelector('.chapter-head');
-  const button = header?.querySelector('[data-action="comment"]');
-  if (header && button && button.hidden) {
-    wireCommentButton(button, header);
-  }
-}
-
 // ------------------------------------------------------------ start
 
 wireMenu();
@@ -23203,7 +23595,13 @@ window.addEventListener('hashchange', route);
 route();
 updateProgress();
 void wireAsk();
-void wireComments();
+
+window.__calai = {
+  chapterContext,
+  askState,
+  getChapterNote,
+  saveChapterNote,
+};
 
 </script>
 </body>
