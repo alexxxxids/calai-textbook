@@ -1460,6 +1460,7 @@ details[open] > summary.callout__head::after {
   margin: 10px auto 4px;
   cursor: grab;
   flex-shrink: 0;
+  touch-action: none;
 }
 
 .ask__head {
@@ -1470,6 +1471,7 @@ details[open] > summary.callout__head::after {
   padding: 12px 16px;
   border-bottom: 1px solid var(--rule);
   background: var(--surface);
+  touch-action: none;
 }
 
 .ask__head-info {
@@ -23584,12 +23586,307 @@ async function wireAsk() {
   });
 }
 
+// ------------------------------------------------------------ lightbox
+
+let lightboxActiveItem = null;
+let lightboxPlaceholder = null;
+let lightboxOriginalParent = null;
+let lightboxScale = 1;
+let lightboxTranslateX = 0;
+let lightboxTranslateY = 0;
+let lightboxHasMoved = false;
+let lightboxIsPointerDown = false;
+
+function updateLightboxTransform() {
+  if (!el.lightboxStage) return;
+  el.lightboxStage.style.transform = `translate(${lightboxTranslateX}px, ${lightboxTranslateY}px) scale(${lightboxScale})`;
+}
+
+function openLightbox(element) {
+  if (!element || !el.lightbox || !el.lightboxStage) return;
+  if (lightboxActiveItem) {
+    closeLightbox();
+  }
+
+  lightboxHasMoved = false;
+  lightboxIsPointerDown = false;
+
+  const rect = element.getBoundingClientRect();
+  const computed = window.getComputedStyle(element);
+
+  const placeholder = document.createElement('div');
+  placeholder.className = 'lightbox-placeholder';
+  placeholder.setAttribute('data-lightbox-placeholder', '');
+  placeholder.style.width = `${Math.max(rect.width, 1)}px`;
+  placeholder.style.height = `${Math.max(rect.height, 1)}px`;
+  placeholder.style.margin = computed.margin;
+  placeholder.style.display = computed.display === 'inline' ? 'inline-block' : 'block';
+  placeholder.style.visibility = 'hidden';
+
+  lightboxOriginalParent = element.parentNode;
+  lightboxActiveItem = element;
+  lightboxPlaceholder = placeholder;
+
+  element.replaceWith(placeholder);
+  el.lightboxStage.appendChild(element);
+
+  lightboxScale = 1;
+  lightboxTranslateX = 0;
+  lightboxTranslateY = 0;
+  updateLightboxTransform();
+
+  el.lightbox.hidden = false;
+  document.body.classList.add('lightbox-open');
+  el.lightboxClose?.focus();
+}
+
+function closeLightbox() {
+  if (!lightboxActiveItem) return;
+
+  lightboxHasMoved = false;
+  lightboxIsPointerDown = false;
+
+  const itemToRestore = lightboxActiveItem;
+  const ph = lightboxPlaceholder;
+  const origParent = lightboxOriginalParent;
+
+  lightboxActiveItem = null;
+  lightboxPlaceholder = null;
+  lightboxOriginalParent = null;
+
+  if (ph && ph.parentNode) {
+    ph.replaceWith(itemToRestore);
+  } else if (origParent) {
+    origParent.appendChild(itemToRestore);
+  }
+
+  if (el.lightbox) {
+    el.lightbox.hidden = true;
+  }
+  document.body.classList.remove('lightbox-open');
+
+  try {
+    if (typeof itemToRestore.focus === 'function') {
+      itemToRestore.focus({ preventScroll: true });
+    }
+  } catch {}
+}
+
+function wireLightbox() {
+  if (!el.lightbox || !el.lightboxViewport) return;
+
+  // Open on click on diagram or image inside reader
+  el.reader?.addEventListener('click', (event) => {
+    const fig = event.target.closest('.diagram.is-rendered');
+    const img = event.target.closest('.reader img');
+    let target = null;
+    if (img) {
+      target = img;
+    } else if (fig) {
+      target = fig.querySelector('.diagram__svg svg, svg');
+    }
+    if (!target) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    openLightbox(target);
+  });
+
+  // Open via keyboard on enter or space
+  el.reader?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      const fig = event.target.closest('.diagram.is-rendered');
+      const img = event.target.closest('.reader img');
+      if (fig || img) {
+        event.preventDefault();
+        const target = img || fig?.querySelector('.diagram__svg svg, svg');
+        if (target) openLightbox(target);
+      }
+    }
+  });
+
+  // Zoom via wheel with { passive: false }
+  el.lightboxViewport.addEventListener('wheel', (e) => {
+    if (el.lightbox.hidden) return;
+    e.preventDefault();
+
+    const factor = e.deltaY < 0 ? 1.15 : 0.85;
+    const newScale = Math.min(Math.max(lightboxScale * factor, 0.4), 15);
+
+    const vpRect = el.lightboxViewport.getBoundingClientRect();
+    const cx = (Number.isFinite(e.clientX) && e.clientX > 0 ? e.clientX : (vpRect.left + vpRect.width / 2));
+    const cy = (Number.isFinite(e.clientY) && e.clientY > 0 ? e.clientY : (vpRect.top + vpRect.height / 2));
+    const originX = cx - (vpRect.left + vpRect.width / 2);
+    const originY = cy - (vpRect.top + vpRect.height / 2);
+
+    const ratio = newScale / lightboxScale;
+    lightboxTranslateX = originX - (originX - lightboxTranslateX) * ratio;
+    lightboxTranslateY = originY - (originY - lightboxTranslateY) * ratio;
+    lightboxScale = newScale;
+
+    updateLightboxTransform();
+  }, { passive: false });
+
+  // Pointer drag & multi-touch pinch
+  let isPointerDown = false;
+  let hasMoved = false;
+  let startX = 0;
+  let startY = 0;
+  let startTx = 0;
+  let startTy = 0;
+  const activePointers = new Map();
+  let initialPinchDist = null;
+  let initialPinchScale = 1;
+
+  el.lightboxViewport.addEventListener('pointerdown', (e) => {
+    if (el.lightbox.hidden) return;
+    if (e.target.closest('.lightbox__controls')) return;
+
+    activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (activePointers.size === 1) {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      lightboxIsPointerDown = true;
+      lightboxHasMoved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      startTx = lightboxTranslateX;
+      startTy = lightboxTranslateY;
+      try {
+        el.lightboxViewport.setPointerCapture(e.pointerId);
+      } catch {}
+      el.lightboxViewport.classList.add('is-dragging');
+    } else if (activePointers.size === 2) {
+      const pts = Array.from(activePointers.values());
+      initialPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      initialPinchScale = lightboxScale;
+    }
+  });
+
+  el.lightboxViewport.addEventListener('pointermove', (e) => {
+    if (el.lightbox.hidden) return;
+    if (activePointers.has(e.pointerId)) {
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    if (activePointers.size === 2 && initialPinchDist) {
+      const pts = Array.from(activePointers.values());
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (dist > 0 && initialPinchDist > 0) {
+        lightboxScale = Math.min(Math.max(initialPinchScale * (dist / initialPinchDist), 0.4), 15);
+        updateLightboxTransform();
+      }
+      return;
+    }
+
+    if (!lightboxIsPointerDown) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.hypot(dx, dy) > 4) {
+      lightboxHasMoved = true;
+    }
+    lightboxTranslateX = startTx + dx;
+    lightboxTranslateY = startTy + dy;
+    updateLightboxTransform();
+  });
+
+  const endDrag = (e) => {
+    activePointers.delete(e.pointerId);
+    if (activePointers.size < 2) {
+      initialPinchDist = null;
+    }
+    if (!lightboxIsPointerDown) return;
+    lightboxIsPointerDown = false;
+    el.lightboxViewport.classList.remove('is-dragging');
+    try {
+      el.lightboxViewport.releasePointerCapture(e.pointerId);
+    } catch {}
+    if (lightboxHasMoved) {
+      setTimeout(() => {
+        lightboxHasMoved = false;
+      }, 50);
+    }
+  };
+
+  el.lightboxViewport.addEventListener('pointerup', endDrag);
+  el.lightboxViewport.addEventListener('pointercancel', endDrag);
+
+  // Close on backdrop/scrim click if not dragged
+  el.lightbox.addEventListener('click', (e) => {
+    if (el.lightbox.hidden) return;
+    if (lightboxHasMoved) {
+      lightboxHasMoved = false;
+      return;
+    }
+    if (e.target.closest('.lightbox__controls') || e.target.closest('.lightbox__stage')) {
+      return;
+    }
+    closeLightbox();
+  });
+
+  // Close button
+  el.lightboxClose?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeLightbox();
+  });
+
+  // Zoom controls
+  el.lightboxZoomIn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    lightboxScale = Math.min(lightboxScale * 1.25, 15);
+    updateLightboxTransform();
+  });
+
+  el.lightboxZoomOut?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    lightboxScale = Math.max(lightboxScale / 1.25, 0.4);
+    updateLightboxTransform();
+  });
+
+  el.lightboxReset?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    lightboxScale = 1;
+    lightboxTranslateX = 0;
+    lightboxTranslateY = 0;
+    updateLightboxTransform();
+  });
+
+  // Escape key and keyboard shortcuts
+  window.addEventListener('keydown', (e) => {
+    if (el.lightbox.hidden) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      closeLightbox();
+    } else if (e.key === '+' || e.key === '=') {
+      lightboxScale = Math.min(lightboxScale * 1.25, 15);
+      updateLightboxTransform();
+    } else if (e.key === '-' || e.key === '_') {
+      lightboxScale = Math.max(lightboxScale / 1.25, 0.4);
+      updateLightboxTransform();
+    } else if (e.key === '0') {
+      lightboxScale = 1;
+      lightboxTranslateX = 0;
+      lightboxTranslateY = 0;
+      updateLightboxTransform();
+    }
+  });
+
+  // Close lightbox on hashchange (chapter navigation)
+  window.addEventListener('hashchange', () => {
+    if (!el.lightbox.hidden) {
+      closeLightbox();
+    }
+  });
+}
+
 // ------------------------------------------------------------ start
 
 wireMenu();
 wireBreakpoints();
 wireTopActions();
 wireSearch();
+wireLightbox();
 rerenderDiagramsOnThemeChange();
 window.addEventListener('hashchange', route);
 route();
@@ -23601,6 +23898,15 @@ window.__calai = {
   askState,
   getChapterNote,
   saveChapterNote,
+  openLightbox,
+  closeLightbox,
+  getLightboxState: () => ({
+    isOpen: !el.lightbox?.hidden,
+    activeItem: lightboxActiveItem,
+    scale: lightboxScale,
+    translateX: lightboxTranslateX,
+    translateY: lightboxTranslateY,
+  }),
 };
 
 </script>
